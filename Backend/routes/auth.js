@@ -8,6 +8,9 @@ const {
   changePassword
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
+// routes/userRoutes.js (ajoutez ces routes à votre fichier userRoutes existant)
+const { authenticateToken } = require('../middleware/auth');
+
 
 // Routes publiques
 router.post('/register', register);

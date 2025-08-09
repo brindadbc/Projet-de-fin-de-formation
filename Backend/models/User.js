@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['candidat', 'recruteur','admin'],
+    enum: ['candidat', 'recruteur', 'admin'],
     default: 'candidat'
   },
   isActive: {
@@ -49,6 +49,15 @@ const userSchema = new mongoose.Schema({
   position: {
     type: String,
     default: ''
+  },
+  // Nouveaux champs pour les messages en temps réel
+  isOnline: {
+    type: Boolean,
+    default: false
+  },
+  lastSeen: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true
@@ -57,7 +66,7 @@ const userSchema = new mongoose.Schema({
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  
+     
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -79,4 +88,11 @@ userSchema.methods.toJSON = function() {
   return userObject;
 };
 
-module.exports = mongoose.model('User', userSchema);
+// Méthode pour mettre à jour le statut en ligne
+userSchema.methods.updateOnlineStatus = async function(isOnline) {
+  this.isOnline = isOnline;
+  this.lastSeen = new Date();
+  return await this.save();
+};
+
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);
